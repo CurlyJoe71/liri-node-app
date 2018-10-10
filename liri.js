@@ -16,22 +16,38 @@ var input = process.argv[3];
 var movieQueryUrl = 'http://www.omdbapi.com/?t=' + input + '&y=&plot=short&apikey=trilogy';
 var concertQueryUrl = 'https://rest.bandsintown.com/artists/' + input + '/events?app_id=codingbootcamp&date=upcoming';
 
-switch (command) {
-    case 'concert-this':
-        concertQuery();
-        break;
-    case 'spotify-this-song':
-        spotifyQuery();
-        break;
-    case 'movie-this':
-        movieQuery();
-        break;
-    case 'do-what-it-says':
-        doThis();
-        break;
-    default:
-        console.log(`You didn't use a proper command, dude.`);
+checkCommand();
+
+function appendFile(text) {
+    fs.appendFile('log.txt', text + ', ', function (err) {
+        if (err) {
+            return console.log(err);
+        }
+    })
 };
+
+function checkCommand() {
+    switch (command) {
+        case 'concert-this':
+            appendFile(command);
+            concertQuery();
+            break;
+        case 'spotify-this-song':
+            appendFile(command);
+            spotifyQuery();
+            break;
+        case 'movie-this':
+            appendFile(command);
+            movieQuery();
+            break;
+        case 'do-what-it-says':
+            appendFile(command);
+            doThis();
+            break;
+        default:
+            console.log(`You didn't use a proper command, dude.`);
+    };
+}
 
 //formatting shortcuts
 var header = '======= The Liri Bot found this: =======';
@@ -47,14 +63,30 @@ function movieQuery() {
         if (res.statusCode === 200) {
             var parsedBody = JSON.parse(body);
             console.log(header);
-            console.log('The title is: ' + parsedBody.Title);
-            console.log('The year it came out is: ' + parsedBody.Year);
-            console.log('The IMDB rating is: ' + parsedBody.imdbRating);
-            console.log('The Rotten Tomatoes rating is: ' + parsedBody.Ratings[1].Value);
-            console.log('The country in which it was produced is: ' + parsedBody.Country);
-            console.log('The language of the movie is: ' + parsedBody.Language);
-            console.log('Here\s a synopsis: ' + parsedBody.Plot);
-            console.log('The cast of the movie includes: ' + parsedBody.Actors);
+            var title = parsedBody.Title;
+            var year = parsedBody.Year;
+            var rating = parsedBody.imdbRating;
+            var rottenRating = parsedBody.Ratings[1].Value;
+            var country = parsedBody.Country;
+            var language = parsedBody.Language;
+            var plot = parsedBody.Plot;
+            var actors = parsedBody.Actors;
+            console.log('The title is: ' + title);
+            console.log('The year it came out is: ' + year);
+            console.log('The IMDB rating is: ' + rating);
+            console.log('The Rotten Tomatoes rating is: ' + rottenRating);
+            console.log('The country in which it was produced is: ' + country);
+            console.log('The language of the movie is: ' + language);
+            console.log('Here\s a synopsis: ' + plot);
+            console.log('The cast of the movie includes: ' + actors);
+            appendFile(title);
+            appendFile(year);
+            appendFile(rating);
+            appendFile(rottenRating);
+            appendFile(country);
+            appendFile(language);
+            appendFile(plot);
+            appendFile(actors);
         }
     })
 };
@@ -71,6 +103,8 @@ function concertQuery() {
             var formattedDateTime = moment(dateTime).format('MM DD YYYY');
             console.log('This artist is playing at: ' + venue.name);
             console.log('They will playing on: ' + formattedDateTime);
+            appendFile(venue);
+            appendFile(formattedDateTime);
         }
     });
 };
@@ -98,9 +132,21 @@ function spotifyQuery() {
             console.log('If you\'d like a link to this track: ' + songLink);
             // console.log()
             console.log('The name of the album from which this song comes is: ' + albumName);
+            appendFile(artistName);
+            appendFile(songTitle);
+            appendFile(songLink);
+            appendFile(albumName);
         });
 };
 
 function doThis() {
-    
-}
+    fs.readFile('random.txt', 'utf8', function (err, data) {
+        if (err) {
+            return console.log(err)
+        }
+        var array = data.split(',');
+        command = array[0];
+        input = array[1];
+        checkCommand();
+    })
+};
