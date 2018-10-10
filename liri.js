@@ -101,10 +101,13 @@ function concertQuery() {
             var venue = JSON.parse(body)[0].venue;
             var dateTime = JSON.parse(body)[0].datetime;
             var formattedDateTime = moment(dateTime).format('MM DD YYYY');
+            var location = venue.city + ', ' + venue.region;
             console.log('This artist is playing at: ' + venue.name);
+            console.log('This concert will take place in: ' + location);
             console.log('They will playing on: ' + formattedDateTime);
-            appendFile(venue);
+            appendFile(venue.name);
             appendFile(formattedDateTime);
+            appendFile(location);
         }
     });
 };
